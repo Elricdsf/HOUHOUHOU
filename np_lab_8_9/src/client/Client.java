@@ -6,7 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
 
-public class client {
+public class Client {
 	
 	Scanner scanner = null;
 	int port = 61121;
@@ -14,13 +14,14 @@ public class client {
 	DatagramPacket receivePacket;
 	DatagramSocket ds;
 	InetAddress ip;
-	String dns = "netprog1.csit.rmit.edu.au";
-	
+//	String dns = "netprog1.csit.rmit.edu.au";
+	String dns = "localhost";
+
 	public static void main(String[] args) {
-		new client();// TODO Auto-generated method stub
+		new Client();// TODO Auto-generated method stub
 		
 	}
-	public client() {
+	public Client() {
 		try {
 			ds = new DatagramSocket();
 			ip = InetAddress.getByName(dns);
@@ -37,11 +38,8 @@ public class client {
             // to server or just close the connection(if exceed the timeout in server)
             // receive message and respond to client
             receive();
-            
-            // if system is not closed, then let client keep sending message.
-            send();
 		}catch (IOException e) {
-			e.getMessage();
+			e.printStackTrace();
 		}finally {
 			scanner.close();
 			if(ds != null) {
@@ -55,28 +53,31 @@ public class client {
 	public void receive() throws IOException {
 		byte[] message = new byte[1024];
 		receivePacket = new DatagramPacket(message, message.length);
-			while(true) {
-				ds.receive(receivePacket);
-				String reply = new String(message,0,message.length);
-				if(reply.equals("Alive")) {
-					System.out.println("Pls keep sending message or system would shut down within 30 seconds");
-				}else if(reply.equals("Disconnected")) {
-					System.out.println("ByeBye");
-					if(ds != null) {
-						ds.close();
-						System.exit(0);
-					}
-				}else {
-					System.out.println(reply);
+		while(true) {
+			ds.receive(receivePacket);
+			String reply = new String(receivePacket.getData());
+			if("Alive".equals(reply.trim())) {
+				System.out.println("Pls keep sending message or system would shut down within 30 seconds");
+
+				// if system is not closed, then let client keep sending message.
+				send();
+			} else if("Disconnected".equals(reply.trim())) {
+				System.out.println("ByeBye");
+				if(ds != null) {
+					ds.close();
+					System.exit(0);
 				}
+			}else {
+				System.out.println(reply);
 			}
+		}
 	}
 	
 	public void send() throws IOException {
+		System.out.println("Pls enter: ");
 		String message = scanner.nextLine();
 		byte[] buf = message.getBytes();
 		sendPacket = new DatagramPacket(buf,buf.length,ip,port);
 		ds.send(sendPacket);
-		System.out.println("Pls enter: ");
 	}
 }
