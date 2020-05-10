@@ -1,18 +1,11 @@
 package server;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.ArrayList;
 
 public class Server {
 
-	byte[] buf = new byte[1024];
 	int port = 61121;
-	DatagramSocket ds;
-	DatagramPacket dp;
-	InetAddress ip;
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -23,21 +16,11 @@ public class Server {
 		
 		System.out.println("Server is running, waiting for new clients ");
 		try {
-			
-			InetAddress ip = InetAddress.getByName("localhost");
-			
-			while(true){
-			
-				DatagramSocket ds = new DatagramSocket();
-			
-				DatagramPacket dp = new DatagramPacket(buf, 0, buf.length, ip, port);
-				
-				clientHandler handler = new clientHandler(ds,dp);
-								
-				Thread thread = new Thread(handler);
-				
-				thread.start();
-			}
+			DatagramSocket ds = new DatagramSocket(port);
+
+			ClientHandler handler = new ClientHandler(ds);
+
+			handler.start();
 		} catch (IOException e) {
 				e.getMessage();
 		} 
@@ -47,6 +30,6 @@ public class Server {
 //			}
 //			System.exit(0);
 //		}
-		} 
+	}
 	
 }
